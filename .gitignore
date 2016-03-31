@@ -30,3 +30,4 @@ proguard/
 
 # Android Studio captures folder
 captures/
+/OfflineMapDemo/assets/map23/map23_files/0/*.png
