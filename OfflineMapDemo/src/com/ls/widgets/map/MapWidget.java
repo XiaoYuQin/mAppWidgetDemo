@@ -52,6 +52,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Scroller;
@@ -101,13 +102,13 @@ public class MapWidget extends View implements MapLocationListener {
 		NONE, ZOOMED, ZOOM
 	};
 
-	private OfflineMapConfig config;
+	protected OfflineMapConfig config;
 	private ZoomButtonsController zoomBtnsController;
 
-	private Grid grid;
-	private Grid prevGrid;
+	protected Grid grid;
+	protected Grid prevGrid;
 
-	private Paint paint;
+	protected Paint paint;
 
 	private float scale;
 	private double pinchZoomScale;
@@ -117,8 +118,8 @@ public class MapWidget extends View implements MapLocationListener {
 	private boolean byUser;
 
 	// Represents layers in the map
-	private MapLayer topmostLayer;
-	private ArrayList<MapLayer> layers;
+	protected MapLayer topmostLayer;
+	protected ArrayList<MapLayer> layers;
 	private Map<Long, Layer> layersMap;
 
 	// Provider that handles loading of map tiles.
@@ -140,7 +141,7 @@ public class MapWidget extends View implements MapLocationListener {
 
 	// Smooth scrolling
 	private GestureDetector gestureDetector;
-	private Scroller scroller;
+	protected Scroller scroller;
 
 	// debug
 	private boolean debugEnabled = false;
@@ -154,7 +155,7 @@ public class MapWidget extends View implements MapLocationListener {
 	private int mapPivotY;
 
 	private static Bitmap logo;
-	private Rect drawingRect;
+	protected Rect drawingRect;
 
 	private Runnable restoreScrollPosRunnable;
 	private Runnable performAfterZoom;
@@ -397,7 +398,9 @@ public class MapWidget extends View implements MapLocationListener {
 		initializeZoomBtnsController();
 
 		gestureDetector = new GestureDetector(context, new MyGestureDetector());
-		decelerateInterpolator = new DecelerateInterpolator(1.5f);
+//		decelerateInterpolator = new DecelerateInterpolator(1.5f);
+		decelerateInterpolator = new LinearInterpolator();
+		
 
 		scroller = new Scroller(context, decelerateInterpolator);
 
@@ -1372,7 +1375,7 @@ public class MapWidget extends View implements MapLocationListener {
 		}
 	}
 
-	private void drawMissingDataErrorMessage(Canvas canvas) {
+	protected void drawMissingDataErrorMessage(Canvas canvas) {
 		paint.setTextSize(24);
 		paint.setStyle(Style.FILL);
 		paint.setAntiAlias(true);
@@ -1425,7 +1428,9 @@ public class MapWidget extends View implements MapLocationListener {
 
 	static final MapScrolledEvent scrolledEvent = new MapScrolledEvent(0, 0);
 
-	private DecelerateInterpolator decelerateInterpolator;
+//	private DecelerateInterpolator decelerateInterpolator;
+	private LinearInterpolator decelerateInterpolator;
+	
 
 	@Override
 	protected void onScrollChanged(int horOrigin, int verOrigin, int oldl,
@@ -1748,7 +1753,7 @@ public class MapWidget extends View implements MapLocationListener {
 		});
 	}
 
-	private void drawLayers(Canvas canvas, Rect drawingRect) {
+	protected void drawLayers(Canvas canvas, Rect drawingRect) {
 		int size = layers.size();
 
 		for (int i = 0; i < size; ++i) {
@@ -1929,6 +1934,7 @@ public class MapWidget extends View implements MapLocationListener {
 //		//this.getLocationInWindow(position);
 //		this.getLocationOnScreen(position);
 //		debug("moveTo now"+"  x = "+position[0]+"  y = "+position[1]);
+
 		// 更新结束后，使用动画控制偏移过程
 		scroller.startScroll(oldPosition[0], oldPosition[1], x, y,travelTimeMs);  
 		oldPosition[0] = x;
