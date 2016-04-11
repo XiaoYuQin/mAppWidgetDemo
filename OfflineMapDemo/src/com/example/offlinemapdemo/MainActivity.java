@@ -7,16 +7,20 @@ import com.ls.widgets.map.model.MapLayer;
 import com.ls.widgets.map.model.MapObject;
 import com.ls.widgets.map.utils.PivotFactory;
 import com.ls.widgets.map.utils.PivotFactory.PivotPosition;
+import com.qinxiaoyu.mAppwidget.AnimationMapObject;
+import com.qinxiaoyu.mAppwidget.Car;
 import com.qinxiaoyu.mAppwidget.RoadWayMapWidget;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
@@ -43,10 +47,18 @@ public class MainActivity extends Activity {
 		d[0] = 100;
 		d[1] = 100;
 		save = new int[2];
-		final RoadWayMapWidget map = new RoadWayMapWidget(this, "map23",15);
+		final RoadWayMapWidget map = new RoadWayMapWidget(this, "map",15);
 		LinearLayout layout = (LinearLayout) findViewById(R.id.mainLayout);		
 		map.getConfig().setZoomBtnsVisible(false);
 		layout.addView(map);
+		
+//		thisCarIcon = 
+//		BitmapDrawable draw = new BitmapDrawable(((BitmapDrawable)getResources().getDrawable(R.drawable.car_arror)).getBitmap();); 
+//		ImageView imageView = new ImageView(this); 
+//		imageView.setImageDrawable(draw);
+		
+//		ImageView imageView = new ImageView(this);
+//		imageView.setImageDrawable(getResources().getDrawable(R.drawable.car));
 		
 		
 //		map.rotationTo(0f,30f,3000);
@@ -91,8 +103,10 @@ public class MainActivity extends Activity {
         final long OBJ_ID = 25;
         
         // adding object to layer
-        final MapObject obj = new MapObject(OBJ_ID, icon, new Point(x, y), PivotFactory.createPivotPoint(icon, PivotPosition.PIVOT_CENTER), true, false);
+        final AnimationMapObject obj = new AnimationMapObject(OBJ_ID, icon, new Point(x, y), PivotFactory.createPivotPoint(icon, PivotPosition.PIVOT_CENTER), true, false);
         layer.addMapObject(obj);
+        obj.setRotation(360, 0);
+//        obj.moveTo(1000, 1000);
         
         /**********************************添加一个物体自动移动上**********************************************/
         map.setOnMapTouchListener(new OnMapTouchListener() {
@@ -115,32 +129,47 @@ public class MainActivity extends Activity {
         });
         
         /**********************************地图按path移动**********************************************/
-        new Thread(new Runnable(){
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				while(true)
-				{
-					Message msg = new Message();
-					msg.what = 1;
-					Bundle bundle = new Bundle();
-					d[0] += 100;
-
-					bundle.putIntArray("point", d);
-					msg.setData(bundle);
-					handler.sendMessage(msg);
-					
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-        	        	
-        }).start();
+//        new Thread(new Runnable(){
+//
+//			@Override
+//			public void run() {
+//				// TODO Auto-generated method stub
+//				while(true)
+//				{
+//					Message msg = new Message();
+//					msg.what = 1;
+//					Bundle bundle = new Bundle();
+//					d[0] += 100;
+//
+//					bundle.putIntArray("point", d);
+//					msg.setData(bundle);
+//					handler.sendMessage(msg);
+//					
+//					try {
+//						Thread.sleep(2000);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//        	        	
+//        }).start();
+        
+        
+    	Car myCar = new Car(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),map.getHandler());
+    	map.addCar(myCar);
+    	
+//    	debug("11111");
+//    	if(map.getCarById(1)!=null)
+//    	{
+////    		map.getCarById(1).turnTo(0f, 360f, 5000);
+//    		;
+//    	}
+    	
+//		ImageView imageView = new ImageView(this);
+//		imageView.setImageDrawable(getResources().getDrawable(R.drawable.car));
+    	
 	}
 
 
