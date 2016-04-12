@@ -1,6 +1,6 @@
 package com.qinxiaoyu.mAppwidget;
 
-import android.R.bool;
+import android.R.integer;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -8,8 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import com.ls.widgets.map.model.MapObject;
@@ -17,8 +15,9 @@ import com.ls.widgets.map.model.MapObject;
 public class AnimationMapObject extends MapObject{
 
 	protected Bitmap bitmap;
-	protected int rotationAngle;
-	protected AnimationThread animationThread;
+	protected float rotationAngle;
+	protected RotationAnimationThread rotationanimationThread;
+	protected MoveAnimationThread moveAnimationThread;
 	
 
 	enum ROTATION_TYPE{
@@ -27,20 +26,35 @@ public class AnimationMapObject extends MapObject{
 	};
 	protected ROTATION_TYPE rotationType;
 	protected boolean isRotation;
-	protected int rotationEndAngle;
+	protected boolean isDraw;
+	protected float rotationEndAngle;
+	
 	
 	protected boolean isMove;
 	protected Point targetPosition;
-	protected int move_xoffset;
-	protected int move_yoffset;
+	protected float move_xoffset;
+	protected float move_yoffset;
+	protected float move_ystep;
+	protected float move_xstep;
+	protected float xoffset;
+	protected float yoffset;
+	private float addxOffset;
+	private float addYoffset;
+
+	Point pointTmp;
+
 	
 	public AnimationMapObject(Object id, Drawable drawable, int x, int y,int pivotX, int pivotY, boolean isTouchable, boolean isScalable) 
 	{
 		super(id, drawable, x, y, pivotX, pivotY, isTouchable, isScalable);
 		// TODO Auto-generated constructor stub
 		bitmap = ((BitmapDrawable) drawable).getBitmap();
-		animationThread = new AnimationThread();
-		animationThread.start();
+		targetPosition = new Point();
+		pointTmp = new Point();
+		rotationanimationThread = new RotationAnimationThread();
+		rotationanimationThread.start();
+		moveAnimationThread = new MoveAnimationThread();
+		moveAnimationThread.start();
 	}
 
 	public AnimationMapObject(long oBJ_ID, Drawable icon, Point point,
@@ -48,27 +62,40 @@ public class AnimationMapObject extends MapObject{
 		super(oBJ_ID, icon, point, createPivotPoint, b, c);
 		// TODO Auto-generated constructor stub
 		bitmap = ((BitmapDrawable) icon).getBitmap();
-		animationThread = new AnimationThread();
-		animationThread.start();
+		targetPosition = new Point();
+		pointTmp = new Point();
+		rotationanimationThread = new RotationAnimationThread();
+		rotationanimationThread.start();
+		moveAnimationThread = new MoveAnimationThread();
+		moveAnimationThread.start();
 	}
 
 	private void debug(String str){Log.d("AnimationMapObject",str);}
 	
-	@Override
-	public void draw(Canvas canvas) {
-		// TODO Auto-generated method stub
+//	@Override
+//	public void draw(Canvas canvas) {
+//		// TODO Auto-generated method stub
 //		super.draw(canvas);
-//		if(isRotation == true)
-		onRotation(canvas);
-		
-	}
+//		if(isDraw == true)
+//		{
+//			isDraw = false;
+//			onRotation(canvas);
+//		}
+//		else
+//		{
+//			isDraw = true;
+//			onMove(canvas);
+//		}
+//		
+//		
+//		
+//	}
 	private void  onRotation(Canvas canvas)
 	{
 		
 		Matrix matrix = new Matrix();
 		Paint paint = new Paint();
 		//设置抗锯齿,防止过多的失真
-		paint.setAntiAlias(true);
 		matrix.setRotate(rotationAngle, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
 		canvas.drawBitmap(bitmap, matrix, paint);
 		
@@ -79,11 +106,8 @@ public class AnimationMapObject extends MapObject{
 		Matrix matrix = new Matrix();
 		Paint paint = new Paint();
 		//设置抗锯齿,防止过多的失真
-		paint.setAntiAlias(true);
-		
-		matrix.setTranslate(1,1);
-		//matrix.postTranslate(getWidth() + getScrollX() - thisCarIcon.getWidth() - getWidth()/2, getHeight() + getScrollY() - thisCarIcon.getHeight() - getHeight()/2);
-		//matrix.setRotate(rotationAngle, thisCarIcon.getWidth() / 2, thisCarIcon.getHeight() / 2);
+		paint.setAntiAlias(true);		
+		matrix.setTranslate(move_xstep,move_xstep);
 		canvas.drawBitmap(bitmap, matrix, paint);
 	}
 	/**
@@ -95,8 +119,10 @@ public class AnimationMapObject extends MapObject{
 	 * @param duration
 	 * 			- 旋转时间
 	 */
-	public void setRotation(int angle,int duration)
+	public void setRotation(float angle,int duration)
 	{
+		if(angle == 0) return;
+		
 		/*
 		 * 设定要旋转的角度和持续时间，当前角度和angle
 		 * */
@@ -110,7 +136,10 @@ public class AnimationMapObject extends MapObject{
 			rotationType = ROTATION_TYPE.ROTATION_ANTICLOCKWISE;			
 		//计算旋转到达的角度
 		rotationEndAngle = rotationAngle+angle;
-		//计算旋转时间
+		//计算每一度的旋转时间
+		int rotationScale = (int) (duration/angle);
+		debug("setRotation 单次刷新时间 = "+rotationScale);
+		rotationanimationThread.setDuration(rotationScale);
 	}
 	
 	/**
@@ -124,12 +153,31 @@ public class AnimationMapObject extends MapObject{
 	 */
 	public void setMove(Point point,int duration)
 	{
+		if(point == null) return;
 		this.targetPosition = point;
 		isMove = true;
-		//计算X轴和Y轴单位时间移动的距离
-		Point pointTmp = getPosition();
 		
+		targetPosition = point;
 		
+		//当前位置
+		pointTmp = getPosition();
+		//计算xy轴的偏移量
+		xoffset = point.x-pointTmp.x;
+		yoffset = point.y-pointTmp.y;
+		
+		move_xoffset = xoffset/duration*100;
+		move_yoffset = yoffset/duration*100;				
+		
+		move_xstep = pointTmp.x+move_xoffset;
+		move_ystep = pointTmp.y+move_yoffset;
+		
+		//moveAnimationThread.setDuration(duration);	
+		debug("pointTmp.x = "+pointTmp.x);
+		debug("pointTmp.y = "+pointTmp.y);
+		debug("xoffset = "+xoffset);
+		debug("yoffset = "+yoffset);
+		debug("move_xoffset = "+move_xoffset);
+		debug("move_yoffset = "+move_yoffset);
 	}
 	
 	
@@ -140,31 +188,29 @@ public class AnimationMapObject extends MapObject{
 	 * 一次重绘时间=duration/angle
 	 * 
 	 * **/
-	private class AnimationThread extends Thread
+	private class RotationAnimationThread extends Thread
 	{
 		private boolean runFlag = true;
-		private boolean frushFlag = true;
-
-
+		private int duration;
+		
+		public int getDuration() {
+			return duration;
+		}
+		public void setDuration(int duration) {
+			this.duration = duration;
+		}
 		public void run()
 		{
 			while(runFlag)
-			{											
-				//每隔50毫秒替换刷新移动和旋转效果参数
-				if(frushFlag == true)
-				{					
-					drawRotation();
-					frushFlag = false;
-				}
-				else
-				{
-					drawMove();
-					frushFlag = true;
-				}
+			{													
+				drawRotation();
 								
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
+				try 
+				{
+					Thread.sleep(duration);
+				} 
+				catch (InterruptedException e) 
+				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -196,13 +242,56 @@ public class AnimationMapObject extends MapObject{
 				rotationAngle -= 1;
 			}				
 		}
-		private void drawMove()
+		
+	}
+	
+	private class MoveAnimationThread extends Thread
+	{
+		private boolean runFlag = true;
+		private int duration = 100;
+		public int getDuration() {
+			return duration;
+		}
+		public void setDuration(int duration) {
+			this.duration = duration;
+		}
+		public void run()
 		{
-			//判断当前点的位置，当前位置的坐标大于目标位置的X坐标时，移动的offset为正
-//			getPosition();
+			while(runFlag)
+			{													
+				drawMove();		
+				try 
+				{
+					Thread.sleep(duration);
+				} 
+				catch (InterruptedException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		private void drawMove()
+		{							
+			if(isMove == false) return;
+			//若移动距离已经够了，标示已经移动到位
+			if((Math.abs(addxOffset)>=Math.abs(xoffset))&&(Math.abs(addYoffset)>=Math.abs(yoffset)))
+			{
+				isMove = false;
+				addxOffset = 0;
+				addYoffset = 0;
+				return;
+			}			
+			move_ystep += move_yoffset;
+			move_xstep += move_xoffset;
+			debug("drawMove move_yoffset = "+move_yoffset);
+			addxOffset+=move_xoffset;
+			addYoffset+=move_yoffset;
 		}
 		
 	}
+	
+	
 
 	public boolean isRotation() {
 		return isRotation;

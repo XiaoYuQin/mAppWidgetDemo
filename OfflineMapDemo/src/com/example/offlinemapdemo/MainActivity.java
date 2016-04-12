@@ -13,6 +13,7 @@ import com.qinxiaoyu.mAppwidget.RoadWayMapWidget;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -20,6 +21,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -39,18 +44,45 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE); //设置无标题
 		setContentView(R.layout.activity_main);
 	
+		ViewGroup layout = (ViewGroup) findViewById(R.id.mainLayout);  
 		
+//		LinearLayout objectLayout = (LinearLayout) findViewById(R.id.objectLayout);		
+//		final Button btn1 = new Button(this);
+//		btn1.setText("1");
+//		btn1.setText("Button1");
+//		   ViewGroup.LayoutParams  lp = btn1.getLayoutParams();
+//	        lp.width =100;
+//	        lp.height =100; 
+//	        btn1.setLayoutParams(lp);
+//		layout.addView(btn1);
+		
+//		 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(200, 100);	 
+//			// 设置包裹内容或者填充父窗体大小
+//			 LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
+//					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);	
+			//设置padding值
+			// btn1.setPadding(10, 10, 10, 10);
+			//设置margin值
+			// lp.setMargins(20, 20, 0, 20);
+//			 layout.addView(btn1,lp);
 		
 		d = new int[2];
 		d[0] = 100;
 		d[1] = 100;
 		save = new int[2];
 		final RoadWayMapWidget map = new RoadWayMapWidget(this, "map",15);
-		LinearLayout layout = (LinearLayout) findViewById(R.id.mainLayout);		
+//		LinearLayout layout = (LinearLayout) findViewById(R.id.mainLayout);		
 		map.getConfig().setZoomBtnsVisible(false);
 		layout.addView(map);
+		
+//		ImageView imageView = new ImageView(this);  
+//		imageView.setImageResource(R.drawable.ic_launcher);  
+//		layout.addView(imageView);
+//		layout.bringChildToFront(imageView);
+//		.bringToFront();
 		
 //		thisCarIcon = 
 //		BitmapDrawable draw = new BitmapDrawable(((BitmapDrawable)getResources().getDrawable(R.drawable.car_arror)).getBitmap();); 
@@ -64,7 +96,7 @@ public class MainActivity extends Activity {
 //		map.rotationTo(0f,30f,3000);
 //		map.moveTo(0,0,500,0,5000);
 		/**********************************地图自动移动**********************************************/
-//		map.moveTo(100, 200,4000);
+//		map.moveTo(100, 200,5000);
 		handler = new Handler()
 		{
 			public void handleMessage(Message msg) 
@@ -105,7 +137,10 @@ public class MainActivity extends Activity {
         // adding object to layer
         final AnimationMapObject obj = new AnimationMapObject(OBJ_ID, icon, new Point(x, y), PivotFactory.createPivotPoint(icon, PivotPosition.PIVOT_CENTER), true, false);
         layer.addMapObject(obj);
-        obj.setRotation(360, 0);
+//        obj.setRotation(360, 3000);
+//        obj.setMove(new Point(500, 500), 10000);
+        
+        
 //        obj.moveTo(1000, 1000);
         
         /**********************************添加一个物体自动移动上**********************************************/
@@ -172,6 +207,19 @@ public class MainActivity extends Activity {
     	
 	}
 
+public class ViewGroup01 extends ViewGroup{
 
+	public ViewGroup01(Context context) {
+		super(context);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+}
 
 }
