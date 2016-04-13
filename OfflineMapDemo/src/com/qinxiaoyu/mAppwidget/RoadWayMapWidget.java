@@ -46,7 +46,7 @@ public class RoadWayMapWidget extends MapWidget{
 	protected List<Point> movePath;
 	protected Scroller mapMoveScroller;
 	private LinearInterpolator linearInterpolator;
-	private ArrayList<Car> cars;
+	private ArrayList<AnimationMapObject> cars;
 	
 	Matrix matrix;
 	Handler handler;
@@ -77,7 +77,7 @@ public class RoadWayMapWidget extends MapWidget{
 		linearInterpolator = new LinearInterpolator();
 		mapMoveScroller = new Scroller(context, linearInterpolator);
 		
-		cars = new ArrayList<Car>();
+		cars = new ArrayList<AnimationMapObject>();
 		
 //		Canvas canvas = new Canvas(thisCarIcon);
 		matrix = new Matrix();
@@ -103,16 +103,16 @@ public class RoadWayMapWidget extends MapWidget{
 			}
 		};
 		
-//		new Timer().schedule(new TimerTask(){
-//
-//			@Override
-//			public void run() {
-//				// TODO Auto-generated method stub
-////				debug("TimerTask run");
-//				handler.sendEmptyMessage(0x1);
-//
-//			}
-//		},0,10);
+		new Timer().schedule(new TimerTask(){
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+//				debug("TimerTask run");
+				handler.sendEmptyMessage(0x1);
+
+			}
+		},0,10);
 		
 	}		
 
@@ -230,16 +230,13 @@ public class RoadWayMapWidget extends MapWidget{
 	 * @author    秦晓宇
 	 * @date      2016年4月7日 下午5:35:51 
 	 * @param canvas
-	 * @param point
-	 * 			- 地图的绘制区大小，小车依托于该参数绘制重绘自己
 	 */
-	private void drawCars(Canvas canvas,Point point)
+	private void drawCars(Canvas canvas)
 	{
 		int size = cars.size();
 		for(int i=0;i<size;i++)
 		{
-//			debug(""+i);
-			cars.get(i).draw(canvas, point);
+			cars.get(i).draw(canvas);
 		}
 	}
 	
@@ -283,13 +280,8 @@ public class RoadWayMapWidget extends MapWidget{
 //				matrix.setTranslate(xxx, 0);
 //				canvas.drawBitmap(thisCarIcon, matrix, paint);
 			}
-			
-			
-			
-			//绘制所有的小车
-			Point point = new Point();
-			point.set(getWidth(), getHeight());
-			drawCars(canvas,point);
+
+			drawCars(canvas);
 			
 		} 
 		else 
@@ -314,12 +306,12 @@ public class RoadWayMapWidget extends MapWidget{
 	 * @date      2016年4月7日 下午5:28:00 
 	 * @param car
 	 */
-	public void addCar(Car car)
+	public void addCar(AnimationMapObject car)
 	{
 		cars.add(car);
 	}
 	
-	public Car getCarById(int id) 
+	public AnimationMapObject getCarById(int id) 
 	{
 		for(int i=0;i<cars.size();i++)
 		{			

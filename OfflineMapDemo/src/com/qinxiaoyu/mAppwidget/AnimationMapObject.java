@@ -1,6 +1,7 @@
 package com.qinxiaoyu.mAppwidget;
 
-import android.R.integer;
+import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -9,12 +10,48 @@ import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.view.animation.LinearInterpolator;
 
-import com.ls.widgets.map.model.MapObject;
 
-public class AnimationMapObject extends MapObject{
 
+
+/**
+ * @author    秦晓宇
+ * @date      2016年4月1日 下午5:38:55
+ * 
+ * @特性：
+ *  1.车有轱辘
+ *  2.车有车灯
+ *  3.车有方向
+ *  4.车有速度
+ *  5.车有类型（可能有不同的图片）
+ *  
+ */
+public class AnimationMapObject{
+
+	
+	private static final boolean isDebug = false;
+	
+	/**前大灯是否开启*/
+	protected boolean isHeadlampsOpen;
+	
+	
+	/**转向枚举
+	 * @author    秦晓宇
+	 * @date      2016年4月5日 上午9:47:46 
+	 */
+	public enum MOTOR_TURNING{
+		NONE,
+		TURN_RIGHT,
+		TURN_LEFT
+	};
+	
+	protected MOTOR_TURNING turning;
+	protected float speed;
+	protected String type;
+	protected int id;
 	protected Bitmap bitmap;
+
 	protected float rotationAngle;
 	protected RotationAnimationThread rotationanimationThread;
 	protected MoveAnimationThread moveAnimationThread;
@@ -42,12 +79,18 @@ public class AnimationMapObject extends MapObject{
 	private float addYoffset;
 
 	Point pointTmp;
-
-	
-	public AnimationMapObject(Object id, Drawable drawable, int x, int y,int pivotX, int pivotY, boolean isTouchable, boolean isScalable) 
-	{
-		super(id, drawable, x, y, pivotX, pivotY, isTouchable, isScalable);
-		// TODO Auto-generated constructor stub
+	/**
+	 * 初始化一辆车，绘制将车辆的图片载入到程序中
+	 * @param context
+	 * @param drawable
+	 * 			- 车辆的图片资源
+	 * @date 2016年4月7日下午5:09:50
+	 */
+	public AnimationMapObject(Context context,int id,Drawable drawable,Point initPoint) 
+	{	
+		
+		this.id = id;		
+		debug("getDrawable = "+ drawable);
 		bitmap = ((BitmapDrawable) drawable).getBitmap();
 		targetPosition = new Point();
 		pointTmp = new Point();
@@ -55,61 +98,66 @@ public class AnimationMapObject extends MapObject{
 		rotationanimationThread.start();
 		moveAnimationThread = new MoveAnimationThread();
 		moveAnimationThread.start();
+		move_xstep = initPoint.x;
+		move_ystep = initPoint.y;
 	}
-
-	public AnimationMapObject(long oBJ_ID, Drawable icon, Point point,
-			Point createPivotPoint, boolean b, boolean c) {
-		super(oBJ_ID, icon, point, createPivotPoint, b, c);
-		// TODO Auto-generated constructor stub
-		bitmap = ((BitmapDrawable) icon).getBitmap();
-		targetPosition = new Point();
-		pointTmp = new Point();
-		rotationanimationThread = new RotationAnimationThread();
-		rotationanimationThread.start();
-		moveAnimationThread = new MoveAnimationThread();
-		moveAnimationThread.start();
-	}
-
-	private void debug(String str){Log.d("AnimationMapObject",str);}
 	
-//	@Override
-//	public void draw(Canvas canvas) {
-//		// TODO Auto-generated method stub
-//		super.draw(canvas);
-//		if(isDraw == true)
-//		{
-//			isDraw = false;
-//			onRotation(canvas);
-//		}
-//		else
-//		{
-//			isDraw = true;
-//			onMove(canvas);
-//		}
-//		
-//		
-//		
-//	}
-	private void  onRotation(Canvas canvas)
+	
+	/**
+	 * 调试方法
+	 * @author    秦晓宇
+	 * @date      2016年4月7日 上午10:28:33 
+	 * @param str
+	 */
+	private void debug(String str)
 	{
-		
+		if(isDebug == true)
+			Log.d("Car",str);
+	}
+	
+	/**
+	 * 绘制小车
+	 * @author    秦晓宇
+	 * @date      2016年4月7日 下午5:13:54 
+	 * @param canvas
+	 * @param point
+	 */
+	public void draw(Canvas canvas){
 		Matrix matrix = new Matrix();
 		Paint paint = new Paint();
 		//设置抗锯齿,防止过多的失真
-		matrix.setRotate(rotationAngle, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
-		canvas.drawBitmap(bitmap, matrix, paint);
 		
-		//debug();
-	}
-	private void onMove(Canvas canvas)
-	{
-		Matrix matrix = new Matrix();
-		Paint paint = new Paint();
-		//设置抗锯齿,防止过多的失真
-		paint.setAntiAlias(true);		
-		matrix.setTranslate(move_xstep,move_xstep);
+		matrix.postRotate(rotationAngle, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
+		matrix.postTranslate(move_xstep,move_ystep);
 		canvas.drawBitmap(bitmap, matrix, paint);
 	}
+	
+	
+	/**
+	 * 使车辆在一定时间内旋转一定的角度
+	 * @author    秦晓宇
+	 * @date      2016年4月7日 下午5:17:22 
+	 * @param start_rotation
+	 * 			- 开始角度
+	 * @param end_rotation
+	 * 			- 结束角度
+	 * @param duration
+	 * 			- 旋转时间 毫秒为单位
+	 */
+	public void turnTo(float start_rotation,float end_rotation,long duration){		
+		LinearInterpolator ll = new LinearInterpolator();
+		ObjectAnimator animator = ObjectAnimator.ofFloat(this, "rotation",start_rotation, end_rotation);
+		animator.setInterpolator(ll);
+		animator.setDuration(duration);
+		animator.start();
+	} 
+	
+	public void trueLeft()
+	{
+		
+	}
+
+	
 	/**
 	 * 动画效果旋转某个物体
 	 * @author    秦晓宇
@@ -137,7 +185,7 @@ public class AnimationMapObject extends MapObject{
 		//计算旋转到达的角度
 		rotationEndAngle = rotationAngle+angle;
 		//计算每一度的旋转时间
-		int rotationScale = (int) (duration/angle);
+		int rotationScale = (int) (duration/Math.abs(angle));
 		debug("setRotation 单次刷新时间 = "+rotationScale);
 		rotationanimationThread.setDuration(rotationScale);
 	}
@@ -154,19 +202,22 @@ public class AnimationMapObject extends MapObject{
 	public void setMove(Point point,int duration)
 	{
 		if(point == null) return;
+		if(point.x == move_xstep && point.y == move_ystep) return;
 		this.targetPosition = point;
 		isMove = true;
 		
 		targetPosition = point;
 		
 		//当前位置
-		pointTmp = getPosition();
+		//pointTmp = bitmap.get//getPosition();
+		pointTmp.x = (int) move_xstep;
+		pointTmp.y = (int) move_xstep;
 		//计算xy轴的偏移量
 		xoffset = point.x-pointTmp.x;
 		yoffset = point.y-pointTmp.y;
 		
-		move_xoffset = xoffset/duration*100;
-		move_yoffset = yoffset/duration*100;				
+		move_xoffset = xoffset/duration*20;
+		move_yoffset = yoffset/duration*20;				
 		
 		move_xstep = pointTmp.x+move_xoffset;
 		move_ystep = pointTmp.y+move_yoffset;
@@ -193,9 +244,6 @@ public class AnimationMapObject extends MapObject{
 		private boolean runFlag = true;
 		private int duration;
 		
-		public int getDuration() {
-			return duration;
-		}
 		public void setDuration(int duration) {
 			this.duration = duration;
 		}
@@ -240,7 +288,7 @@ public class AnimationMapObject extends MapObject{
 					return;
 				}
 				rotationAngle -= 1;
-			}				
+			}	
 		}
 		
 	}
@@ -248,13 +296,7 @@ public class AnimationMapObject extends MapObject{
 	private class MoveAnimationThread extends Thread
 	{
 		private boolean runFlag = true;
-		private int duration = 100;
-		public int getDuration() {
-			return duration;
-		}
-		public void setDuration(int duration) {
-			this.duration = duration;
-		}
+		private final int duration = 20;
 		public void run()
 		{
 			while(runFlag)
@@ -284,7 +326,7 @@ public class AnimationMapObject extends MapObject{
 			}			
 			move_ystep += move_yoffset;
 			move_xstep += move_xoffset;
-			debug("drawMove move_yoffset = "+move_yoffset);
+			//debug("drawMove move_yoffset = "+move_yoffset);
 			addxOffset+=move_xoffset;
 			addYoffset+=move_yoffset;
 		}
@@ -300,8 +342,76 @@ public class AnimationMapObject extends MapObject{
 	
 	
 	
-	
-	
-
+	/******************** getting & setting **************************/
+	/**
+	 * 获得大灯是否开启的状体
+	 * @author    秦晓宇
+	 * @date      2016年4月5日 上午10:05:28 
+	 * @return
+	 */
+	public boolean	getIsHeadlampsOpen(){return this.isHeadlampsOpen;}
+	/**
+	 * 设置大灯开启状态
+	 * @author    秦晓宇
+	 * @date      2016年4月5日 上午10:05:48 
+	 * @param isHeadlampsOpen
+	 */
+	public void setIsHeadlampsOpen(boolean isHeadlampsOpen){this.isHeadlampsOpen = isHeadlampsOpen;}
+	/**
+	 * 获得转向状态
+	 * @author    秦晓宇
+	 * @date      2016年4月5日 上午10:06:06 
+	 * @return
+	 */
+	public MOTOR_TURNING getTurning(){return this.turning;}
+	/**
+	 * 设置转向状态
+	 * @author    秦晓宇
+	 * @date      2016年4月5日 上午10:06:21 
+	 * @param turning
+	 */
+	public void setTurning(MOTOR_TURNING turning){this.turning = turning;}
+	/**
+	 * 获得车辆速度
+	 * @author    秦晓宇
+	 * @date      2016年4月5日 上午10:06:31 
+	 * @return
+	 */
+	public float getSpeed(){return this.speed;}
+	/**
+	 * 设置车辆速度
+	 * @author    秦晓宇
+	 * @date      2016年4月5日 上午10:06:47 
+	 * @param speed
+	 */
+	public void setSpeed(float speed){this.speed = speed;}
+	/**
+	 * 获得车辆类型
+	 * @author    秦晓宇
+	 * @date      2016年4月5日 上午10:07:02 
+	 * @return
+	 */
+	public String getType(){return this.type;}
+	/**
+	 * 设置车辆类型
+	 * @author    秦晓宇
+	 * @date      2016年4月5日 上午10:07:10 
+	 * @param type
+	 */
+	public void setType(String type){this.type = type;}
+	/**
+	 * 获得车辆id
+	 * @author    秦晓宇
+	 * @date      2016年4月8日 上午8:18:18 
+	 * @return	  车辆id
+	 */
+	public int getId() {return id;}
+	/**
+	 * 设置车辆id
+	 * @author    秦晓宇
+	 * @date      2016年4月8日 上午8:18:43 
+	 * @param id
+	 */
+	public void setId(int id) {this.id = id;}
 
 }
