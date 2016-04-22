@@ -112,7 +112,7 @@ public class AnimationMapObject{
 	private void debug(String str)
 	{
 		if(isDebug == true)
-			Log.d("Car",str);
+			Log.d("AnimationMapObject",str);
 	}
 	
 	/**
@@ -339,6 +339,7 @@ public class AnimationMapObject{
 		return isRotation;
 	}
 	
+
 	
 	
 	
@@ -414,4 +415,33 @@ public class AnimationMapObject{
 	 */
 	public void setId(int id) {this.id = id;}
 
+	/**
+	 * 设置当前图片在地图的位置
+	 * @author    秦晓宇
+	 * @date      2016年4月13日 上午9:52:18 
+	 * @param point
+	 * 			- 图片所处位置
+	 */
+	public void setPosition(Point point)
+	{
+		move_xstep = point.x;
+		move_ystep = point.y;
+	}
+	
+	/**
+	 * 获得当前图片相对于地图的位置
+	 * @author    秦晓宇
+	 * @date      2016年4月13日 上午9:55:06 
+	 * @return		
+	 * 			- 当前图片所处的位置
+	 */
+	public Point getPosition()
+	{
+		Point point = new Point();
+		point.x = (int) move_xstep;
+		point.y = (int) move_ystep;
+		return point;		
+	}
+	
+	
 }
