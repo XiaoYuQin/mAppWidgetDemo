@@ -1,7 +1,12 @@
 package com.qinxiaoyu.mAppwidget.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.qinxiaoyu.lib.util.format.list.LibArrayList;
+import com.qinxiaoyu.lib.util.format.map.LibLinkedHashMap;
 
 import android.util.Log;
 
@@ -14,7 +19,7 @@ import android.util.Log;
  */
 public class MapPoints {
 
-	private Map<String,MapPoint> mapPoints;
+	private LinkedHashMap<String,MapPoint> mapPoints;
 	
 	@SuppressWarnings("unused")
 	private void debug(String str)
@@ -30,10 +35,25 @@ public class MapPoints {
 	 */
 	public MapPoints()
 	{	
-		mapPoints = new HashMap<String,MapPoint>();	
+		mapPoints = new LinkedHashMap<String,MapPoint>();	
 	}
 	
-
+	public void debugAll()
+	{
+		ArrayList<Object> rfIDStrings = new ArrayList<Object>();
+		rfIDStrings = LibLinkedHashMap.getkey(mapPoints);
+		for(int i=0;i<rfIDStrings.size();i++)
+		{
+			debug("卡 "+i+" = "+(String)rfIDStrings.get(i));
+		}
+	}
+	/**
+	 * 根据标签的编号获得标签的具体参数
+	 * @author    秦晓宇
+	 * @date      2016年4月28日 上午11:03:01 
+	 * @param id
+	 * @return	
+	 */
 	public MapPoint getPointByID(String id)
 	{
 		MapPoint mapPoint = null;
@@ -43,6 +63,16 @@ public class MapPoints {
 	public void setPoint(String id,MapPoint point)
 	{
 		mapPoints.put(id, point);
+	}
+	/**
+	 * 获取地图的标签点的数量
+	 * @author    秦晓宇
+	 * @date      2016年4月28日 上午11:22:00 
+	 * @return
+	 */
+	public int getPointsNumber()
+	{
+		return mapPoints.size();
 	}
 	
 }

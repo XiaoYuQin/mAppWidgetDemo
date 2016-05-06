@@ -1,6 +1,7 @@
 package com.qinxiaoyu.mAppwidget.data;
 
 import android.graphics.Point;
+import android.util.Log;
 
 import com.qinxiaoyu.lib.android.SdCard;
 import com.qinxiaoyu.lib.util.file.File;
@@ -26,6 +27,9 @@ public class FileMapPoints{
 	
 	/**在开发过程中的一个变量，主要用于生成地图坐标点*/
 	private int developRFID;
+	
+	
+	private void debug(String str){Log.d("FileMapPoints",str);}
 	
 	public FileMapPoints()
 	{
@@ -70,9 +74,13 @@ public class FileMapPoints{
 		if(SdCard.checkSDcardStatus() == 0)  
 		{			
 			String jonsString = File.read(ConfigFilePath.getMapPointConfigFilePath());
-			mapPoints = (MapPoints) Json.toObject(mapPoints, jonsString);
+			mapPoints =  (MapPoints) Json.toObject(mapPoints, jonsString);
+			mapPoints.debugAll();
+			debug("标签点配置文件转换标签数据成功");
+			debug("读取标签数量："+mapPoints.getPointsNumber());
 			return true;
 		}
+		debug("标签点配置文件转换标签数据失败");
 		return false;
 	}
 	
@@ -85,6 +93,12 @@ public class FileMapPoints{
 	
 	
 	/************************** getters & setters **************************/
+	/**
+	 * 获得所有的地图点
+	 * @author    秦晓宇
+	 * @date      2016年4月28日 上午11:02:09 
+	 * @return	  -地图上标定的所有点
+	 */
 	public MapPoints getMapPoints() {
 		return mapPoints;
 	}

@@ -19,6 +19,12 @@ public class MapPoint {
 	public void setId(String id) {
 		this.id = id;
 	}
+	/**
+	 * 该点的位置
+	 * @author    秦晓宇
+	 * @date      2016年4月28日 上午11:06:09 
+	 * @return	-Point类
+	 */
 	public Point getPoint() {
 		return point;
 	}

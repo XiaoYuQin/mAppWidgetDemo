@@ -1,16 +1,18 @@
 package com.example.offlinemapdemo;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.ls.widgets.map.MapWidget;
 import com.ls.widgets.map.events.MapTouchedEvent;
 import com.ls.widgets.map.interfaces.OnMapTouchListener;
-import com.qinxiaoyu.lib.android.SdCard;
-import com.qinxiaoyu.lib.util.file.File;
-import com.qinxiaoyu.lib.util.format.string.json.Json;
 import com.qinxiaoyu.mAppwidget.AnimationMapObject;
+import com.qinxiaoyu.mAppwidget.OtherCar;
 import com.qinxiaoyu.mAppwidget.RoadWayMapWidget;
 import com.qinxiaoyu.mAppwidget.data.FileMapPoints;
 import com.qinxiaoyu.mAppwidget.data.MapPoint;
-import com.qinxiaoyu.mAppwidget.data.MapPoints;
+import com.qinxiaoyu.lib.util.file.File;
+
 
 import android.app.Activity;
 import android.graphics.Point;
@@ -18,9 +20,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.LinearLayout;
 
@@ -30,9 +29,10 @@ public class MainActivity extends Activity {
 	
 	
 	Handler handler;
+	//FileMapPoints fileMapPoints;
 	int[] d;
 	int[] save;
-	 
+	int xasdfasdf = 0;
 	private void debug(String str){
 		Log.d("MainActivity",str);
 	}
@@ -43,14 +43,12 @@ public class MainActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE); //设置无标题
 		setContentView(R.layout.activity_main); 
 		
-		
-		FileMapPoints fileMapPoints = new FileMapPoints();
+		/*fileMapPoints = new FileMapPoints();		
 		if(fileMapPoints.init())
 		{
 			debug("fileMapPoints 初始化成功");
-		}
-		
-		
+			debug("标签点数量："+fileMapPoints.getMapPoints().getPointsNumber());
+		}*/
 		
 	  
 //		MapPoints mapPoints = new MapPoints();  
@@ -95,7 +93,7 @@ public class MainActivity extends Activity {
 			// lp.setMargins(20, 20, 0, 20);
 //			 layout.addView(btn1,lp);
 		
-
+ 
 		final RoadWayMapWidget map = new RoadWayMapWidget(this, "map",15);
 		LinearLayout layout = (LinearLayout) findViewById(R.id.mainLayout);		
 		map.getConfig().setZoomBtnsVisible(false);
@@ -120,7 +118,7 @@ public class MainActivity extends Activity {
 //		map.rotationTo(0f,30f,3000);
 //		map.moveTo(0,0,500,0,5000);
 		/**********************************地图自动移动**********************************************/
-//		map.moveTo(1000, 100,15000);
+		map.moveTo(1000, 100,15000);
 		handler = new Handler()
 		{
 			public void handleMessage(Message msg) 
@@ -158,8 +156,6 @@ public class MainActivity extends Activity {
         
         /**********************************添加一个物体自动移动上**********************************************/
         map.setOnMapTouchListener(new OnMapTouchListener() {
-        	
- 
         	@Override
         	public void onTouch(MapWidget arg0, MapTouchedEvent arg1) {
         		// TODO Auto-generated method stub
@@ -175,8 +171,6 @@ public class MainActivity extends Activity {
 //        		debug("moveTo now"+"  x = "+position[0]+"  y = "+position[1]);
         		
         		debug("getMap x = "+arg1.getMapX()+" y = "+arg1.getMapY());
-        		
-        		
         	}
 
         });
@@ -209,20 +203,71 @@ public class MainActivity extends Activity {
 //        	        	
 //        }).start();
         
+          
+    	//final AnimationMapObject myCar = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(200,300));
+//    	AnimationMapObject myCar1 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(450,100));
+//    	AnimationMapObject myCar2 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(200,200));
+//    	AnimationMapObject myCar3 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(700,700));
+    	//map.addCar(myCar);
+//    	map.addCar(myCar1);
+//    	map.addCar(myCar2);
+//    	map.addCar(myCar3);
         
-    	AnimationMapObject myCar = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(200,300));
-    	AnimationMapObject myCar1 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(450,100));
-    	AnimationMapObject myCar2 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(200,200));
-    	AnimationMapObject myCar3 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(700,700));
-    	map.addCar(myCar);
-    	map.addCar(myCar1);
-    	map.addCar(myCar2);
-    	map.addCar(myCar3);
-    	myCar.setMove(new Point(800, 500), 10000);
-    	myCar.setRotation(-360, 3000);
-    	myCar1.setRotation(360, 3000);
-    	myCar2.setRotation(-360, 3000);
-    	myCar3.setRotation(360, 3000);
+        
+        OtherCar myCar = new OtherCar(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(0,0)); 
+        OtherCar myCar1 = new OtherCar(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(100,0));
+        myCar.setShowWarringCircle(true);
+        map.addCar(myCar);
+        map.addCar(myCar1);
+//    	WarringCircle w1 = new WarringCircle();
+//    	map.add(w1);
+
+//    	new Timer().schedule(new TimerTask(){
+//
+//    	    @Override
+//    	    public void run() {
+//    	        // TODO Auto-generated method stub
+//    	    	debug("run timer ");
+//    	    	debug("地图点数量为："+fileMapPoints.getMapPoints().getPointsNumber());
+//    	    	if(xasdfasdf>fileMapPoints.getMapPoints().getPointsNumber())
+//    	    	{
+//    	    		debug("xasdfasdf = "+xasdfasdf+" > "+fileMapPoints.getMapPoints().getPointsNumber());
+//    	    	}
+//    	    	else
+//    	    	{
+//    	    		Point movePoint = new Point();
+//    	    		debug("point = "+fileMapPoints.getMapPoints().getPointByID("0000"+xasdfasdf).getPoint());
+//    	    		if(fileMapPoints.getMapPoints().getPointByID("0000"+xasdfasdf).getPoint()!=null)
+//    	    		{
+//    	    			debug("movePoint = "+movePoint);
+//    	    			
+//    	    		}
+//    	    		else 
+//    	    		{
+//						debug("movePoint = null"); 
+//					}
+//    	    		if(movePoint != null)
+//    	    		{    	    			
+//    	    			myCar.setMove(movePoint, 1000);
+//    	    		}
+//    	    		xasdfasdf +=1;
+//    	    	}    	    	
+//    	    }
+//    	},0,1000);
+    	
+
+    	myCar.setMove(new Point(1500, 500), 10000);
+//    	myCar.setScale(0.5f);
+//    	myCar.setRotation(-360, 3000);
+//    	myCar1.setRotation(360, 3000);
+//    	myCar2.setRotation(-360, 3000);
+//    	myCar3.setRotation(360, 3000);
+    	 
+    	
+    	
+    	
+    	
+    	
 //    	debug("11111");
 //    	if(map.getCarById(1)!=null)
 //    	{

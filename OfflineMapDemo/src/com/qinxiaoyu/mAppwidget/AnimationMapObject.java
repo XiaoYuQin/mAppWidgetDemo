@@ -1,9 +1,13 @@
 package com.qinxiaoyu.mAppwidget;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -30,7 +34,7 @@ import android.view.animation.LinearInterpolator;
 public class AnimationMapObject{
 
 	
-	private static final boolean isDebug = false;
+	private static final boolean isDebug = true;
 	
 	/**前大灯是否开启*/
 	protected boolean isHeadlampsOpen;
@@ -55,6 +59,7 @@ public class AnimationMapObject{
 	protected float rotationAngle;
 	protected RotationAnimationThread rotationanimationThread;
 	protected MoveAnimationThread moveAnimationThread;
+
 	
 
 	enum ROTATION_TYPE{
@@ -78,6 +83,12 @@ public class AnimationMapObject{
 	private float addxOffset;
 	private float addYoffset;
 
+	/**图形缩放*/
+	protected float scale = 1f;
+	
+
+
+//	Matrix matrix;
 	Point pointTmp;
 	/**
 	 * 初始化一辆车，绘制将车辆的图片载入到程序中
@@ -88,18 +99,20 @@ public class AnimationMapObject{
 	 */
 	public AnimationMapObject(Context context,int id,Drawable drawable,Point initPoint) 
 	{	
-		
+//		matrix = new Matrix();	
 		this.id = id;		
 		debug("getDrawable = "+ drawable);
 		bitmap = ((BitmapDrawable) drawable).getBitmap();
 		targetPosition = new Point();
 		pointTmp = new Point();
+//		animationTimer = new Timer();
 		rotationanimationThread = new RotationAnimationThread();
 		rotationanimationThread.start();
 		moveAnimationThread = new MoveAnimationThread();
 		moveAnimationThread.start();
 		move_xstep = initPoint.x;
 		move_ystep = initPoint.y;
+	
 	}
 	
 	
@@ -125,10 +138,16 @@ public class AnimationMapObject{
 	public void draw(Canvas canvas){
 		Matrix matrix = new Matrix();
 		Paint paint = new Paint();
+
 		//设置抗锯齿,防止过多的失真
-		
+		matrix.postScale(scale, scale);
+//		if(isRotation == true);
 		matrix.postRotate(rotationAngle, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
-		matrix.postTranslate(move_xstep,move_ystep);
+//		if(isMove == true)
+		matrix.postTranslate(move_xstep-bitmap.getWidth() / 2,move_ystep-bitmap.getHeight() / 2);		
+		
+		paint.setAntiAlias(true);  
+
 		canvas.drawBitmap(bitmap, matrix, paint);
 	}
 	
@@ -210,8 +229,9 @@ public class AnimationMapObject{
 		
 		//当前位置
 		//pointTmp = bitmap.get//getPosition();
+		
 		pointTmp.x = (int) move_xstep;
-		pointTmp.y = (int) move_xstep;
+		pointTmp.y = (int) move_ystep;
 		//计算xy轴的偏移量
 		xoffset = point.x-pointTmp.x;
 		yoffset = point.y-pointTmp.y;
@@ -223,13 +243,15 @@ public class AnimationMapObject{
 		move_ystep = pointTmp.y+move_yoffset;
 		
 		//moveAnimationThread.setDuration(duration);	
-		debug("pointTmp.x = "+pointTmp.x);
-		debug("pointTmp.y = "+pointTmp.y);
-		debug("xoffset = "+xoffset);
-		debug("yoffset = "+yoffset);
-		debug("move_xoffset = "+move_xoffset);
-		debug("move_yoffset = "+move_yoffset);
+		debug("当前点x坐标 = "+pointTmp.x);
+		debug("当前点y坐标 = "+pointTmp.y);
+		debug("物体按x轴移动的总距离 = " + xoffset);
+		debug("物体按y轴移动的总距离 = " + yoffset);
+		debug("物体每次重绘x轴位置 = " + move_xoffset);
+		debug("物体每次重绘y轴位置 = " + move_yoffset);
 	}
+	
+	
 	
 	
 	/**
@@ -442,6 +464,13 @@ public class AnimationMapObject{
 		point.y = (int) move_ystep;
 		return point;		
 	}
-	
+	public float getScale() {
+		return scale;
+	}
+
+
+	public void setScale(float scale) {
+		this.scale = scale;
+	}
 	
 }
