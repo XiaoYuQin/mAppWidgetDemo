@@ -2184,12 +2184,13 @@ public class MapWidget extends View implements MapLocationListener {
 				result = onDoubleTapListener.onDoubleTap(MapWidget.this, mapTouchedEvent);
 			}
 			
-			if (result == false) {
-				float pivotX = e.getX();
-				float pivotY = e.getY();
-				zoomIn((int) pivotX, (int) pivotY);
-				result = true;
-			}
+			
+//			if (result == false) {
+//				float pivotX = e.getX();
+//				float pivotY = e.getY();
+//				zoomIn((int) pivotX, (int) pivotY);
+//				result = true;
+//			}
 			
 			Log.i("MyGestureDetector","result = "+result);
 			return result;

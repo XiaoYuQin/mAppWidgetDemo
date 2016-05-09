@@ -29,6 +29,7 @@ import android.widget.Scroller;
 
 import com.example.offlinemapdemo.R;
 import com.ls.widgets.map.MapWidget;
+import com.qinxiaoyu.setting.mapPoint.MapPointIndex;
 
 
 
@@ -47,12 +48,10 @@ public class RoadWayMapWidget extends MapWidget{
 	protected Scroller mapMoveScroller;
 	private LinearInterpolator linearInterpolator;
 	private ArrayList<AnimationMapObject> cars;
-
+	private ArrayList<MapPointIndex> mapPointIndexs;
 	
-	Matrix matrix;
 	Handler handler;
 	
-	int xxx;
 		
 	/**
 	 * 
@@ -79,16 +78,8 @@ public class RoadWayMapWidget extends MapWidget{
 		mapMoveScroller = new Scroller(context, linearInterpolator);
 		
 		cars = new ArrayList<AnimationMapObject>();
-
-		
-//		Canvas canvas = new Canvas(thisCarIcon);
-		matrix = new Matrix();
-		//以图片中心作为旋转中心，旋转180°
-		
-		Paint paint = new Paint();
-		//设置抗锯齿,防止过多的失真
-		paint.setAntiAlias(true);
-//		canvas.drawBitmap(thisCarIcon, matrix, paint);
+		mapPointIndexs = new ArrayList<MapPointIndex>();
+	
 		
 		handler = new Handler()
 		{
@@ -96,10 +87,6 @@ public class RoadWayMapWidget extends MapWidget{
 			{   
 				if(msg.what == 0x1)
 				{
-//					debug("TimerTask run");
-//					xxx+=2;
-//					if(xxx>=360) xxx=0;
-//					matrix.postTranslate(getWidth() + getScrollX() - thisCarIcon.getWidth() - getWidth()/2, getHeight() + getScrollY() - thisCarIcon.getHeight() - getHeight()/2);
 					invalidate();
 				}
 			}
@@ -241,7 +228,13 @@ public class RoadWayMapWidget extends MapWidget{
 			cars.get(i).draw(canvas);
 		}
 	}
-	
+	private void drawMapPointIndexs(Canvas canvas)
+	{
+		for(int i=0;i<mapPointIndexs.size();i++)
+		{
+			mapPointIndexs.get(i).draw(canvas);
+		}
+	}
 
 	
 	
@@ -274,18 +267,19 @@ public class RoadWayMapWidget extends MapWidget{
 			drawLayers(canvas, drawingRect);
 
 			//显示地图上移动的小车
-			if(thisCarIcon != null)
-			{
-				canvas.drawBitmap(thisCarIcon,
-					getWidth() + getScrollX() - thisCarIcon.getWidth() - getWidth()/2,
-					getHeight() + getScrollY() - thisCarIcon.getHeight() - getHeight()/2,
-					paint);			
-				
-//				matrix.setRotate(xxx, thisCarIcon.getWidth() / 2, thisCarIcon.getHeight() / 2);
-//				matrix.setTranslate(xxx, 0);
-//				canvas.drawBitmap(thisCarIcon, matrix, paint);
-			}
+//			if(thisCarIcon != null)
+//			{
+//				canvas.drawBitmap(thisCarIcon,
+//					getWidth() + getScrollX() - thisCarIcon.getWidth() - getWidth()/2,
+//					getHeight() + getScrollY() - thisCarIcon.getHeight() - getHeight()/2,
+//					paint);			
+//				
+////				matrix.setRotate(xxx, thisCarIcon.getWidth() / 2, thisCarIcon.getHeight() / 2);
+////				matrix.setTranslate(xxx, 0);
+////				canvas.drawBitmap(thisCarIcon, matrix, paint);
+//			}
 			drawCars(canvas);
+			drawMapPointIndexs(canvas);
 		} 
 		else 
 		{
@@ -313,6 +307,11 @@ public class RoadWayMapWidget extends MapWidget{
 	{
 		cars.add(car);
 	}
+	public void add(MapPointIndex mapPointIndex){
+		mapPointIndexs.add(mapPointIndex);
+	}
+	
+	
 	
 	public AnimationMapObject getCarById(int id) 
 	{

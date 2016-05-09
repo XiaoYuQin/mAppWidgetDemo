@@ -1,13 +1,9 @@
 package com.qinxiaoyu.mAppwidget;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;

@@ -6,22 +6,39 @@ import java.util.TimerTask;
 import com.ls.widgets.map.MapWidget;
 import com.ls.widgets.map.events.MapTouchedEvent;
 import com.ls.widgets.map.interfaces.OnMapTouchListener;
+import com.ls.widgets.map.model.MapLayer;
+import com.ls.widgets.map.model.MapObject;
+import com.ls.widgets.map.utils.PivotFactory;
+import com.ls.widgets.map.utils.PivotFactory.PivotPosition;
 import com.qinxiaoyu.mAppwidget.AnimationMapObject;
 import com.qinxiaoyu.mAppwidget.OtherCar;
 import com.qinxiaoyu.mAppwidget.RoadWayMapWidget;
 import com.qinxiaoyu.mAppwidget.data.FileMapPoints;
 import com.qinxiaoyu.mAppwidget.data.MapPoint;
+import com.qinxiaoyu.setting.mapPoint.MapPointIndex;
+import com.qinxiaoyu.lib.transmit.net.udp.UdpClient;
 import com.qinxiaoyu.lib.util.file.File;
+
+
+
+
+
+
+
+
+
 
 
 import android.app.Activity;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.Window;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
@@ -33,6 +50,9 @@ public class MainActivity extends Activity {
 	int[] d;
 	int[] save;
 	int xasdfasdf = 0;
+	
+	int mapPointInedxNum = 0;
+	
 	private void debug(String str){
 		Log.d("MainActivity",str);
 	}
@@ -98,6 +118,32 @@ public class MainActivity extends Activity {
 		LinearLayout layout = (LinearLayout) findViewById(R.id.mainLayout);		
 		map.getConfig().setZoomBtnsVisible(false);
 		layout.addView(map);
+		
+		
+		TextView tv = new TextView(this);
+		tv.setText("Hello World");
+		layout.addView ( tv );
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
 		
 //		ImageView imageView = new ImageView(this);  
@@ -118,7 +164,7 @@ public class MainActivity extends Activity {
 //		map.rotationTo(0f,30f,3000);
 //		map.moveTo(0,0,500,0,5000);
 		/**********************************地图自动移动**********************************************/
-		map.moveTo(1000, 100,15000);
+//		map.moveTo(1000, 100,15000);
 		handler = new Handler()
 		{
 			public void handleMessage(Message msg) 
@@ -148,13 +194,20 @@ public class MainActivity extends Activity {
 //        final long OBJ_ID = 25;
 //        
 //        // adding object to layer
-//        final AnimationMapObject obj = new AnimationMapObject(OBJ_ID, icon, new Point(700, 500), PivotFactory.createPivotPoint(icon, PivotPosition.PIVOT_CENTER), true, false);
+//        final MapObject obj = new MapObject(OBJ_ID, icon, new Point(300, 300), PivotFactory.createPivotPoint(icon, PivotPosition.PIVOT_CENTER), true, false);
 //        layer.addMapObject(obj);
+        
+        
+        
 //        obj.setRotation(360, 3000);
 //        obj.setMove(new Point(700, 500), 10000);
         
         
         /**********************************添加一个物体自动移动上**********************************************/
+//		 final long LAYER_ID = 5;
+//		 final MapLayer layer = map.createLayer(LAYER_ID);    
+		
+		
         map.setOnMapTouchListener(new OnMapTouchListener() {
         	@Override
         	public void onTouch(MapWidget arg0, MapTouchedEvent arg1) {
@@ -169,10 +222,17 @@ public class MainActivity extends Activity {
 //        		int[] position = new int[2];  
 //        		map.getLocationOnScreen(position);
 //        		debug("moveTo now"+"  x = "+position[0]+"  y = "+position[1]);
-        		
+//        		Drawable icon = getResources().getDrawable(R.drawable.map_index);        		
         		debug("getMap x = "+arg1.getMapX()+" y = "+arg1.getMapY());
+//        		MapObject mapObject = new MapObject(mapPointInedxNum,icon , arg1.getMapX(), arg1.getMapY(),true);        		
+//        		layer.addMapObject(mapObject);
+        		
+        		MapPointIndex mapPointIndex = new MapPointIndex(mapPointInedxNum,arg1.getMapX(),arg1.getMapY(), 5);
+        		map.add(mapPointIndex);        		
+        		mapPointInedxNum ++;
+//        		new Thread(new ).start();
+        		UdpClient.send("192.168.0.101", 8000, arg1.getMapX()+","+arg1.getMapY()+"\r\n");
         	}
-
         });
         
         /**********************************地图按path移动**********************************************/
@@ -204,21 +264,25 @@ public class MainActivity extends Activity {
 //        }).start();
         
           
-    	//final AnimationMapObject myCar = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(200,300));
+    	final OtherCar myCar = new OtherCar(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(100,100));
 //    	AnimationMapObject myCar1 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(450,100));
 //    	AnimationMapObject myCar2 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(200,200));
 //    	AnimationMapObject myCar3 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(700,700));
-    	//map.addCar(myCar);
+    	myCar.setWarringCircleVisable(true);
+    	map.addCar(myCar);
 //    	map.addCar(myCar1);
 //    	map.addCar(myCar2);
 //    	map.addCar(myCar3);
         
+        /*其它车辆移动*/
+//        OtherCar myCar = new OtherCar(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(0,0)); 
+//        OtherCar myCar1 = new OtherCar(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(100,0));
+//        myCar.setWarringCircleVisable(true);
+//        map.addCar(myCar);
+//        map.addCar(myCar1);
         
-        OtherCar myCar = new OtherCar(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(0,0)); 
-        OtherCar myCar1 = new OtherCar(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(100,0));
-        myCar.setShowWarringCircle(true);
-        map.addCar(myCar);
-        map.addCar(myCar1);
+        
+        
 //    	WarringCircle w1 = new WarringCircle();
 //    	map.add(w1);
 
@@ -258,7 +322,7 @@ public class MainActivity extends Activity {
 
     	myCar.setMove(new Point(1500, 500), 10000);
 //    	myCar.setScale(0.5f);
-//    	myCar.setRotation(-360, 3000);
+    	myCar.setRotation(-360, 3000);
 //    	myCar1.setRotation(360, 3000);
 //    	myCar2.setRotation(-360, 3000);
 //    	myCar3.setRotation(360, 3000);

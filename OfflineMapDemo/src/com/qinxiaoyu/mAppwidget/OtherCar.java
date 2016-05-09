@@ -45,7 +45,7 @@ public class OtherCar extends AnimationMapObject{
 			p.setAntiAlias(true);
 			p.setColor(Color.RED);
 			p.setStyle(Paint.Style.STROKE);
-			p.setStrokeWidth(3);
+			p.setStrokeWidth(2);
 			canvas.drawCircle(move_xstep, move_ystep, warringCircle.getRange4(), p);// ¥Û‘≤
 			canvas.drawCircle(move_xstep, move_ystep, warringCircle.getRange3(), p);// ¥Û‘≤
 			canvas.drawCircle(move_xstep, move_ystep, warringCircle.getRange2(), p);// ¥Û‘≤
@@ -121,10 +121,10 @@ public class OtherCar extends AnimationMapObject{
 		
 	}
 
-	public boolean isShowWarringCircle() {
+	public boolean isWarringCircleVisable() {
 		return isShowWarringCircle;
 	}
-	public void setShowWarringCircle(boolean isShowWarringCircle) {
+	public void setWarringCircleVisable(boolean isShowWarringCircle) {
 		this.isShowWarringCircle = isShowWarringCircle;
 	}
 	
