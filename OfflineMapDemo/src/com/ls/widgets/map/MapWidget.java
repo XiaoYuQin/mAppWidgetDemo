@@ -1928,6 +1928,15 @@ public class MapWidget extends View implements MapLocationListener {
 		super.onDetachedFromWindow();
 	}
 
+	/**
+	 * 移动到某个位置，这里的x，y是偏移量，表示从当前位置移动
+	 * @param x
+	 * 			- x 轴偏移量
+	 * @param y
+	 * 			- y 轴偏移量
+	 * @param travelTimeMs
+	 * 			- 移动总时长
+	 */
 	public void moveTo(int x,int y,int travelTimeMs){  
 		
 //		int[] position = new int[2];  

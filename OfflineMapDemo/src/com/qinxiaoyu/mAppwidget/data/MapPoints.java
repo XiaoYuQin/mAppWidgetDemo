@@ -3,6 +3,7 @@ package com.qinxiaoyu.mAppwidget.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.qinxiaoyu.lib.util.format.list.LibArrayList;
@@ -20,6 +21,7 @@ import android.util.Log;
 public class MapPoints {
 
 	private LinkedHashMap<String,MapPoint> mapPoints;
+		
 	
 	@SuppressWarnings("unused")
 	private void debug(String str)

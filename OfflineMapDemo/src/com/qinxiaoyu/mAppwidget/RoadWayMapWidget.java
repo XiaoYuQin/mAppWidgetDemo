@@ -4,31 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.LogRecord;
-
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
-import android.widget.ImageView;
 import android.widget.Scroller;
 
 import com.example.offlinemapdemo.R;
 import com.ls.widgets.map.MapWidget;
+import com.ls.widgets.map.model.MapObject;
+import com.qinxiaoyu.setting.mapPoint.MapLine;
 import com.qinxiaoyu.setting.mapPoint.MapPointIndex;
 
 
@@ -49,6 +42,8 @@ public class RoadWayMapWidget extends MapWidget{
 	private LinearInterpolator linearInterpolator;
 	private ArrayList<AnimationMapObject> cars;
 	private ArrayList<MapPointIndex> mapPointIndexs;
+	private ArrayList<MapLine> mapLines;
+	private ArrayList<MapObject> mapObjects; 
 	
 	Handler handler;
 	
@@ -79,7 +74,7 @@ public class RoadWayMapWidget extends MapWidget{
 		
 		cars = new ArrayList<AnimationMapObject>();
 		mapPointIndexs = new ArrayList<MapPointIndex>();
-	
+		mapObjects = new ArrayList<MapObject>(); 
 		
 		handler = new Handler()
 		{
@@ -201,18 +196,27 @@ public class RoadWayMapWidget extends MapWidget{
 	 * @param y_start
 	 * 				-起始点y坐标
 	 * @param x_end
-	 * 				-x坐标偏移量
+	 * 				-结束点x坐标
 	 * @param y_end
-	 * 				-y轴偏移量
+	 * 				-结束点y坐标
 	 * @param scrollerDuration
 	 * 				-移动的时间
 	 */
 	public void moveTo(int x_start,int y_start,int x_end,int y_end,int scrollerDuration){  	
+		int xoffset = x_end-x_start;
+		int yoffset = y_end-y_start;
+				
 		// 更新结束后，使用动画控制偏移过程
-		scroller.startScroll(x_start, y_start, x_end, y_end,scrollerDuration);  
+		scroller.startScroll(x_start, y_start, xoffset, yoffset,scrollerDuration);  
 		// 重绘控件
 		invalidate();   
 	} 
+	
+	
+	@Override
+	public void moveTo(int x,int y,int travelTimeMs){  
+		super.moveTo(x, y, travelTimeMs);
+	}
 		
 	/**
 	 * 绘制小车
@@ -235,7 +239,14 @@ public class RoadWayMapWidget extends MapWidget{
 			mapPointIndexs.get(i).draw(canvas);
 		}
 	}
-
+	private void drawMapObjects(Canvas canvas)
+	{
+		for(int i=0;i<mapObjects.size();i++)
+		{
+			mapObjects.get(i).drawByUser(canvas);
+		}
+	}
+	
 	
 	
 	/**
@@ -267,19 +278,21 @@ public class RoadWayMapWidget extends MapWidget{
 			drawLayers(canvas, drawingRect);
 
 			//显示地图上移动的小车
-//			if(thisCarIcon != null)
-//			{
-//				canvas.drawBitmap(thisCarIcon,
-//					getWidth() + getScrollX() - thisCarIcon.getWidth() - getWidth()/2,
-//					getHeight() + getScrollY() - thisCarIcon.getHeight() - getHeight()/2,
-//					paint);			
-//				
-////				matrix.setRotate(xxx, thisCarIcon.getWidth() / 2, thisCarIcon.getHeight() / 2);
-////				matrix.setTranslate(xxx, 0);
-////				canvas.drawBitmap(thisCarIcon, matrix, paint);
-//			}
+			if(thisCarIcon != null)
+			{
+				canvas.drawBitmap(thisCarIcon,
+					getWidth() + getScrollX() - thisCarIcon.getWidth() - getWidth()/2,
+					getHeight() + getScrollY() - thisCarIcon.getHeight() - getHeight()/2,
+					paint);			
+				
+//				matrix.setRotate(xxx, thisCarIcon.getWidth() / 2, thisCarIcon.getHeight() / 2);
+//				matrix.setTranslate(xxx, 0);
+//				canvas.drawBitmap(thisCarIcon, matrix, paint);
+			}
 			drawCars(canvas);
 			drawMapPointIndexs(canvas);
+			drawMapObjects(canvas);
+			
 		} 
 		else 
 		{
@@ -310,7 +323,14 @@ public class RoadWayMapWidget extends MapWidget{
 	public void add(MapPointIndex mapPointIndex){
 		mapPointIndexs.add(mapPointIndex);
 	}
-	
+	public void add(MapLine line)
+	{
+		mapLines.add(line);
+	}
+	public void add(MapObject mapObject)
+	{
+		mapObjects.add(mapObject);
+	}
 	
 	
 	public AnimationMapObject getCarById(int id) 

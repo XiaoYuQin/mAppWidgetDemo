@@ -15,7 +15,9 @@ import com.qinxiaoyu.mAppwidget.OtherCar;
 import com.qinxiaoyu.mAppwidget.RoadWayMapWidget;
 import com.qinxiaoyu.mAppwidget.data.FileMapPoints;
 import com.qinxiaoyu.mAppwidget.data.MapPoint;
+import com.qinxiaoyu.mAppwidget.data.MapPoints;
 import com.qinxiaoyu.setting.mapPoint.MapPointIndex;
+import com.qinxiaoyu.lib.android.SdCard;
 import com.qinxiaoyu.lib.transmit.net.udp.UdpClient;
 import com.qinxiaoyu.lib.util.file.File;
 
@@ -29,7 +31,12 @@ import com.qinxiaoyu.lib.util.file.File;
 
 
 
+
+
+import com.qinxiaoyu.lib.util.format.string.json.Json;
+
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -46,12 +53,15 @@ public class MainActivity extends Activity {
 	
 	
 	Handler handler;
-	//FileMapPoints fileMapPoints;
+	FileMapPoints fileMapPoints;
 	int[] d;
 	int[] save;
 	int xasdfasdf = 0;
 	
 	int mapPointInedxNum = 0;
+	
+	
+	int mapPointRunIndex = 0;
 	
 	private void debug(String str){
 		Log.d("MainActivity",str);
@@ -63,34 +73,7 @@ public class MainActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE); //设置无标题
 		setContentView(R.layout.activity_main); 
 		
-		/*fileMapPoints = new FileMapPoints();		
-		if(fileMapPoints.init())
-		{
-			debug("fileMapPoints 初始化成功");
-			debug("标签点数量："+fileMapPoints.getMapPoints().getPointsNumber());
-		}*/
-		
-	  
-//		MapPoints mapPoints = new MapPoints();  
-//		mapPoints.setPoint("0001", new MapPoint("0001", new Point(1,1)));
-//		mapPoints.setPoint("0002", new MapPoint("0002", new Point(2,2)));
-//		mapPoints.setPoint("0003", new MapPoint("0003", new Point(3,3)));
-//		mapPoints.setPoint("0004", new MapPoint("0004", new Point(4,4)));
-//		   
-//		debug("conver to json"); 
-//		String jsonString = Json.toJsonByPretty(mapPoints);
-//		debug(jsonString);
-//
-//		if(SdCard.checkSDcardStatus() == 0)  
-//		{
-//			String sdPath = SdCard.getSdcardPath();
-//			String[] files = new String[10];
-//			files[0] = sdPath+"/offlineMap";
-//			files[1] = sdPath+"/offlineMap/config";			
-//			
-//			File.createFiles(files);
-//			File.write(sdPath+"/offlineMap/config/MapPointsConfig.json",jsonString,false);
-//		}
+
 		
 		
 //		LinearLayout objectLayout = (LinearLayout) findViewById(R.id.objectLayout);		
@@ -163,21 +146,8 @@ public class MainActivity extends Activity {
 		
 //		map.rotationTo(0f,30f,3000);
 //		map.moveTo(0,0,500,0,5000);
-		/**********************************地图自动移动**********************************************/
-//		map.moveTo(1000, 100,15000);
-		handler = new Handler()
-		{
-			public void handleMessage(Message msg) 
-			{   
-				switch (msg.what) 
-				{   
-					case 1:
-						debug("save x = "+save[0]+"y = "+save[1]+"   x = "+d[0]+" y ="+d[1]);
-					break;
-				}   
-				super.handleMessage(msg);   
-			}   
-		};
+//		map.moveTo(0,0,500,0,5000);
+
 
 
 		
@@ -226,16 +196,28 @@ public class MainActivity extends Activity {
         		debug("getMap x = "+arg1.getMapX()+" y = "+arg1.getMapY());
 //        		MapObject mapObject = new MapObject(mapPointInedxNum,icon , arg1.getMapX(), arg1.getMapY(),true);        		
 //        		layer.addMapObject(mapObject);
-        		
+        		final int x = arg1.getMapX();
+        		final int y = arg1.getMapY();
         		MapPointIndex mapPointIndex = new MapPointIndex(mapPointInedxNum,arg1.getMapX(),arg1.getMapY(), 5);
         		map.add(mapPointIndex);        		
         		mapPointInedxNum ++;
 //        		new Thread(new ).start();
-        		UdpClient.send("192.168.0.101", 8000, arg1.getMapX()+","+arg1.getMapY()+"\r\n");
+        		new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						UdpClient.send("192.168.0.102", 8000, x+","+y+"\r\n");
+					}
+				}).start();
+        		
         	}
         });
-        
-        /**********************************地图按path移动**********************************************/
+
+		
+
+		
+//        /**********************************地图按path移动**********************************************/
 //        new Thread(new Runnable(){
 //
 //			@Override
@@ -264,12 +246,12 @@ public class MainActivity extends Activity {
 //        }).start();
         
           
-    	final OtherCar myCar = new OtherCar(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(100,100));
+//    	final OtherCar myCar = new OtherCar(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(100,100));
 //    	AnimationMapObject myCar1 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(450,100));
 //    	AnimationMapObject myCar2 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(200,200));
 //    	AnimationMapObject myCar3 = new AnimationMapObject(getApplicationContext(),1,getResources().getDrawable(R.drawable.car_arror),new Point(700,700));
-    	myCar.setWarringCircleVisable(true);
-    	map.addCar(myCar);
+//    	myCar.setWarringCircleVisable(true);
+//    	map.addCar(myCar);
 //    	map.addCar(myCar1);
 //    	map.addCar(myCar2);
 //    	map.addCar(myCar3);
@@ -319,10 +301,94 @@ public class MainActivity extends Activity {
 //    	    }
 //    	},0,1000);
     	
+		
+		/**********************************模拟生成json地图点文件**********************************************/
+//		MapPoints mapPoints = new MapPoints();  
+//		mapPoints.setPoint("0001", new MapPoint(1,1));
+//		mapPoints.setPoint("0002", new MapPoint(2,2));
+//		mapPoints.setPoint("0003", new MapPoint(3,3));
+//		mapPoints.setPoint("0004", new MapPoint(4,4));
+//		   
+//		debug("conver to json"); 
+//		String jsonString = Json.toJsonByPretty(mapPoints);
+//		debug(jsonString);
+//
+//		if(SdCard.checkSDcardStatus() == 0)  
+//		{
+//			String sdPath = SdCard.getSdcardPath();
+//			String[] files = new String[10];
+//			files[0] = sdPath+"/offlineMap";
+//			files[1] = sdPath+"/offlineMap/config";			
+//			
+//			File.createFiles(files);
+//			File.write(sdPath+"/offlineMap/config/MapPointsConfig.json",jsonString,false);
+//		}
+		/**********************************地图自动移动**********************************************/
+//		map.moveTo(1000, 100,15000);
+		handler = new Handler()
+		{
+			public void handleMessage(Message msg) 
+			{   
+				switch (msg.what) 
+				{   
+					case 1:
+						//debug("save x = "+save[0]+"y = "+save[1]+"   x = "+d[0]+" y ="+d[1]);
+						Bundle bundle = new Bundle();
+						bundle = msg.getData();
+						int x = bundle.getInt("x");
+						int y = bundle.getInt("y");
+						debug("x="+x+"y="+y);
+	        	    	map.moveTo(x, y, 1000);    
+					break;
+				}   
+				super.hand！leMessage(msg);   
+			}   
+		};
+        
+        
+		/****************************读取json地图点文件获取车辆在地图上的点*************************************/
+		fileMapPoints = new FileMapPoints();		
+		if(fileMapPoints.init())
+		{
+			debug("fileMapPoints 初始化成功");
+			debug("标签点数量："+fileMapPoints.getMapPoints().getPointsNumber());
+		}
+		/*创建一个地图物体*/
+//		Drawable icon = getResources().getDrawable(R.drawable.map_index);        
+//		final AnimationMapObject mapObject = new AnimationMapObject(getApplicationContext(),123,icon, new Point(0,0));     
+//		
+//		map.addCar(mapObject);
+		
+        /****************************以地图坐标点为依据，移动车辆*************************************/       
+    	new Timer().schedule(new TimerTask(){
 
-    	myCar.setMove(new Point(1500, 500), 10000);
+    	    @Override
+    	    public void run() {
+    	        // TODO Auto-generated method stub
+//    	    	debug("TimerTask run");
+    	    	if(mapPointRunIndex<fileMapPoints.getMapPoints().getPointsNumber())
+    	    	{
+ 
+        	    	int x = fileMapPoints.getMapPoints().getPointByID("B"+mapPointRunIndex).getX();
+        	    	int y = fileMapPoints.getMapPoints().getPointByID("B"+mapPointRunIndex).getY();        	    	
+        	    	mapPointRunIndex++;     
+       	    		debug("地图标志物移动到"+"B"+mapPointRunIndex+"("+x+","+y+")");
+       	    		Message msg = new Message();
+					msg.what = 1;
+					Bundle bundle = new Bundle();
+					bundle.putInt("x", x);
+					bundle.putInt("y", y);
+					msg.setData(bundle);
+					handler.sendMessage(msg);
+					
+    	    	}
+    	    }
+    	},0,1000);
+
+        
+//    	myCar.setMove(new Point(1500, 500), 10000);
 //    	myCar.setScale(0.5f);
-    	myCar.setRotation(-360, 3000);
+//    	myCar.setRotation(-360, 3000);
 //    	myCar1.setRotation(360, 3000);
 //    	myCar2.setRotation(-360, 3000);
 //    	myCar3.setRotation(360, 3000);

@@ -17,8 +17,11 @@
 package com.ls.widgets.map.model;
 
 import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Looper;
@@ -252,6 +255,14 @@ public class MapObject
 	        drawable.draw(canvas);
 		}
 	}
+	
+	public void drawByUser(Canvas canvas)
+	{
+		Matrix matrix = new Matrix();
+		Paint paint = new Paint();
+		matrix.postTranslate(pos.x,pos.y);		
+		canvas.drawBitmap( ((BitmapDrawable) drawable).getBitmap(), matrix, paint);
+	}
 
 	/**
 	 * Returns id of this object
@@ -417,6 +428,18 @@ public class MapObject
 
 		invalidateSelf();
 	}
+	
+	/**
+	 * 自己写的物体移动
+	 * @author    秦晓宇
+	 * @date      2016年5月21日 上午9:19:59 
+	 */
+	public void moveToByUser(int x,int y)
+	{
+		pos.x = x;
+		pos.y = y;
+	}
+	
 	
 	
 	/**

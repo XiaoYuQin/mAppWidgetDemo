@@ -87,7 +87,7 @@ public class FileMapPoints{
 	
 	public void setPoint(Point point)
 	{
-		MapPoint mapPoint = new MapPoint(""+developRFID, point);
+		MapPoint mapPoint = new MapPoint(point.x, point.y);
 		mapPoints.setPoint(""+developRFID, mapPoint);
 	}
 	
